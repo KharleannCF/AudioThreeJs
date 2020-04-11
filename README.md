@@ -1,4 +1,14 @@
 # AudioThreeJs
 this repository contain a little example to work with diferent positional audio elements in a ThreeJs scene
 
-You can move with WASD or the arrows, and click and drag to rotate the camera, if you press F you can hear Foxy talk through the red sphere, if you walk below the green sphere you can hear a woman voice
+You can move with WASD or the arrows, and click and drag to rotate the camera, if you press F you can hear a sound through the red sphere, if you walk below the green sphere you will activate it sounds.
+
+the platform has an area of 1000 x 1000, the spheres are located acordingly to every limit of the map
+ - blue (-450,40,0)
+ - red (450,40,0)
+ - green (0,40,-450)
+ - violet (0,40,450)
+
+the red sphere has a volume of 1 and refDistance of 50
+the green sphere have a volume of 0.2.5 and a refDistance of 50
+the violet one has a volume of 1 and a refDistanc of 20
