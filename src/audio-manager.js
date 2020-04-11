@@ -37,6 +37,8 @@ let normalAudio = {
     man_5_bank: 'https://assets-test-o-zone.s3.amazonaws.com/assets/sound/BANK/bank5OkayNoProblem.mp3',
     man_6_bank: 'https://assets-test-o-zone.s3.amazonaws.com/assets/sound/BANK/bank6OkayThanksForStoppingBy.mp3',
     man_7_bank: 'https://assets-test-o-zone.s3.amazonaws.com/assets/sound/BANK/bank4GreatLetMeConnectYou.mp3',
+    red:'red.mp3',
+    green:'green.mp3'
 
 
 },

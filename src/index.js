@@ -111,11 +111,14 @@ const clicker = function(event){
 		audioManager.setListener(cameraM);		
 		const audioElement = createAudioElement('music');
 		const audio = createPositionalAudio(audioElement);
+		
+		audio.setRefDistance(20);
+		console.log(audio.getVolume());
 		violetSphere.add(audio);
 
 		// this comes from audio manager file provided
-		audioManager.createEventAudio({name:'foxi_1_en', volumen:0.1}, null, redSphere);
-		audioManager.createEventAudio({name:'woman_3_shiseido', volumen:0.1}, null, greenSphere);	
+		audioManager.createEventAudio({name:'red', volumen:1}, null, redSphere);
+		audioManager.createEventAudio({name:'green', volumen:0.25}, null, greenSphere);	
 	}
 }
 
