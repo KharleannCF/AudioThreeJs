@@ -6,13 +6,28 @@
     <style type="text/css">
     	html, body {
  			margin: 0;
- 			height: 100%;
-		}
+		  }
     	canvas{
     		width: 100vw;
     		height: 100%;
-    		display: block;
+        position: absolute;
+    		display: none;
+        left: 0%;
+        top: 0%;
     	}
+      input{
+        display: none;
+      }
+      .principal{
+        position: absolute;
+        width: 100vw;
+        height: 100%;
+        left: 0%;
+        top: 0%;
+      }
+      h1, h2, p, button {
+        margin-left: 10px;
+      }
     </style>
   </head>
   <body>
@@ -20,8 +35,30 @@
       <source src="./violet.mp3" type="audio/mpeg">
     </audio>
     
+    <div id="principal" class="Principal">
+      <div>
+        <h1>Positional audio demo</h1>
+        <h2>Controls</h2>
+        <ul>
+          <li>Move with WASD or Arrows</li>
+          <li>Click and drag to rotate the camera</li>
+          <li>Press F to hear the red ball (Forgotten love by AURORA)</li>
+          <li>Stand under the green ball to start it (Behind Closed Doors by Rise Against)</li>
+          <li>The purple ball is always playing (Everlong Acoustic version by Foo Fighters)</li>
+          <li>Press C to start hearing yourself from the blue ball (on key up the volume will be 0)</li>
+          <li>Movile controls soon</li>
+        </ul>
+      </div>
+      <div>
+        <p>By default the gain obtained or the volumen decrease by this formula</p> <br>
+        <p>inverse: An inverse distance model calculating the gain induced by the distance according to:</p> <br>
+        <p>refDistance / (refDistance + rolloffFactor * (Math.max(distance, refDistance) - refDistance))</p> <br>
+        <p>this is the inverse distance model, which is the one that ThreeJS use by default</p>
+      </div>
+      <button id="starter">Click here to play the demo</button>
+    </div>
 
-
+ 
 
 
   	<canvas id="canvas"></canvas>

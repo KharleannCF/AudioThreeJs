@@ -5,7 +5,7 @@ let helper = {
         return (conf !== null && conf !== undefined);
     },
     findByName  : function(elem, name) {
-        return scene.getObjectByName(name);
+        return elem.getObjectByName(name);
     }
 };
 
@@ -38,7 +38,8 @@ let normalAudio = {
     man_6_bank: 'https://assets-test-o-zone.s3.amazonaws.com/assets/sound/BANK/bank6OkayThanksForStoppingBy.mp3',
     man_7_bank: 'https://assets-test-o-zone.s3.amazonaws.com/assets/sound/BANK/bank4GreatLetMeConnectYou.mp3',
     red:'red.mp3',
-    green:'green.mp3'
+    green:'green.mp3',
+    blue:'blue.mp3'
 
 
 },
