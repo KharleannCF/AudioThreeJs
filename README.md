@@ -10,7 +10,3 @@ you move to an aproximate speed (it depends in the performance delta factor) of 
  - red (450,40,0)
  - green (0,40,-450)
  - violet (0,40,450)
-
-the red sphere has a volume of 1 and refDistance of 50
-the green sphere have a volume of 0.2.5 and a refDistance of 50
-the violet one has a volume of 1 and a refDistanc of 20
