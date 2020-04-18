@@ -195,6 +195,15 @@ let onKeyDown = function ( event ) {
 		case 70: //F
 			audioManager.startAudio(redSphere);
 			break;
+		case 86: //V
+			audioManager.upDownAudio(5, activeCamera);
+			break;
+		case 66: //B
+			audioManager.upDownAudio(-5, activeCamera);
+			break;
+		case 78: //N
+			audioManager.deleteAudio(greenSphere);
+			break;
 		case 67:
 		if(blueSphere.getObjectByName('audio') == null) {
 			audioManager.catchMicrophone(blueSphere);
@@ -243,8 +252,8 @@ const clicker = function(event){
 		//This one comes from html audio tag
 		audioManager.createPositionalAudio('violetMusic',  {Volume: 4, RolloffFactor : 900, RefDistance : 35}, violetSphere);
 		// this comes from audio manager event audio defined entirely in JS
-		audioManager.createEventAudio({name:'red', volumen:30, distance: 0.5}, null, redSphere);
-		audioManager.createEventAudio({name:'green', volumen:0.5, distance: 1}, null, greenSphere);	
+		audioManager.createAudioEvent({name:'red', volumen:30, distance: 0.5}, null, redSphere);
+		audioManager.createAudioEvent({name:'green', volumen:0.5, distance: 1}, null, greenSphere);	
 
 		// This is mediaStream Manager
 	}

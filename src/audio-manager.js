@@ -73,10 +73,15 @@ export function setListener(_camera) {
     camera = _camera;
 }
 
-export function upDownAudio(vol) {
-    let c = helper.findByName(camera, "listener");
-    c = c[0];
-    c.setMasterVolume(c.getMasterVolume() + vol);
+
+//Added an elem parameter, multiple cameras could be defined with setListener method
+//Previous version wasn't working on example scene
+//Comented c value reassignation previous error may come from my helper definition
+//Added Math.max function, negative values are considered positive by API
+export function upDownAudio(vol, elem) {
+    let c = helper.findByName(elem, "listener");
+    //c=c[0]
+    c.setMasterVolume(Math.max(c.getMasterVolume() + vol, 0));
 }
 
 export const getListenerAudio = () => {
@@ -155,7 +160,9 @@ export function addAudioEvent(conf, position, _object) {
 
 }
 
-export function createEventAudio(conf, position, _object) {
+//Name changed for consistency with prevously defined methods
+//createEventAudio now is createAudioEvent
+export function createAudioEvent(conf, position, _object) {
     let sound = new THREE.PositionalAudio(listener);
     let object = helper.isDefined(_object) ? _object : AudioObject(position, true);
     conf.volumen = helper.isDefined(conf.volumen) ? conf.volumen : 50;
@@ -225,9 +232,14 @@ export function startAudio(object) {
     }
 }
 
+//Previous version wasn't working on example scene
+//removed '[0]' from v.remove(c[0]) previous error may come from my helper definition
+//If audio element is only removed it will still keep playing till song ends
+//unles you pause it before removing it
 export function deleteAudio(v) {
     let c = helper.findByName(v, "Audio");
-    v.remove(c[0]);
+    c.pause();
+    v.remove(c);
 }
 
 export function stopAllAudio() {
@@ -383,7 +395,7 @@ function AudioStayPlay(sound) {
 }
 
 
-//Codigo nuevo
+//Added Functions
 
 //Receive Id of html audio element, this is usefull when only have the html tag
 function createAudioElement(id){
