@@ -1,4 +1,5 @@
 /*
+
  Dependencies Webpack  and three, npm install webpack webpack-cli,
  npm install three, npm install camera-controls
  npm run-script build to compile, work on this file.
@@ -35,8 +36,6 @@ let moveLeft = false;
 let moveRight = false;
 
 //Media recorder and mediaStream for the blue parrot sphere
-let mediaRecorder;
-const mediaStream = new MediaStream();
 
 
 //Space and scene visual functions
@@ -62,13 +61,10 @@ function movement(direction, speed){
 	  	cameraControls.truck(speed*delta*moveX,0,true);
   	}
   	
-  	if(!audioPlaying(greenSphere)){
+  	if(!audioManager.audioPlaying(greenSphere)){
   		(colisionDetector(cameraControls, greenSphere)) ? audioManager.startAudio(greenSphere) : false;
   	}
 }
-
-
-
 
 //Glass sphere creator receive the radius of the sphere
 function createGlassSphere(radius){
@@ -94,77 +90,6 @@ function colisionDetector (controlElement, interactiveElement){
 }
 
 //Audio function and proposal for audio manager
-
-//Receive Id of html audio element, this is usefull when only have the html tag
-function createAudioElement(id){
-	const audioElement = document.getElementById(id);
-	audioElement.play();
-	return audioElement;
-}
-
-//receive audioElement from audio html tag return elemento to set
-//this also receive a configuration JSON that set the properties of the audio element
-//See threejs documentation in order to see what configuration you could give
-//the function are case sensitive, so you must write the config exactly
-//the same way threeJS name function (minus the '.set')
-function createPositionalAudio(audioElement, conf){
-	const audios = new THREE.PositionalAudio(audioManager.getListenerAudio());
-	audios.setMediaElementSource( audioElement );
-	let confEntries = (conf) ? Object.entries(conf) : [];
-	for (let i = 0; i< confEntries.length ; i++ ){
-		confEntries[i][0] = "set" + confEntries[i][0];
-		if (typeof audios[confEntries[i][0]] === "function"){
-			audios[confEntries[i][0]](confEntries[i][1]);
-		}
-	}
-	return audios;
-}
-
-
-//Set true if audio of an object received as parameter is playing
-//useful to reduce the number of warnings in the console when the colission is detected
-function audioPlaying(object){
-	let c = object.children
-	return c[0].isPlaying;
-}
-
-
-
-//Function to create the positional audio through a media stream
-//this receive a stream and a configuration JSON that set properties of the audio element
-//See threejs documentation in order to see what configuration you could give
-//the function are case sensitive, so you must write the config exactly
-//the same way threeJS name function (minus the '.set')
-let createAudioStream = function(stream, conf){
-	let audios = new THREE.PositionalAudio(audioManager.getListenerAudio());
-	audios.setMediaStreamSource(stream);
-	let confEntries = (conf) ? Object.entries(conf) : [];
-	for (let i = 0; i< confEntries.length ; i++ ){
-		confEntries[i][0] = "set" + confEntries[i][0];
-		if (typeof audios[confEntries[i][0]] === "function"){
-			audios[confEntries[i][0]](confEntries[i][1]);
-		}
-	}
-	return audios;
-}
-
-//Receive an object and put the media stream element on it
-//future modifications can receive a config Json and send it to the
-//createAudioStream function
-let catchMicrophone = function(object){
-	let constraints = {audio : true};
-	navigator.mediaDevices.getUserMedia(constraints).then(function(stream){
-		mediaRecorder = new MediaRecorder(stream);
-		mediaRecorder.onstart = function(e){
-			const audio = createAudioStream(e.target.stream, {Volume: 20});
-			audio.name = 'audio';
-			object.add(audio);
-		}
-		mediaRecorder.start();
-	})
-}
-
-
 
 //Ground
 let geoFloor = new THREE.BoxGeometry( 1000, 1, 1000 );
@@ -271,8 +196,8 @@ let onKeyDown = function ( event ) {
 			audioManager.startAudio(redSphere);
 			break;
 		case 67:
-		if(mediaRecorder == null) {
-			catchMicrophone(blueSphere);
+		if(blueSphere.getObjectByName('audio') == null) {
+			audioManager.catchMicrophone(blueSphere);
 		}else {
 			blueSphere.getObjectByName('audio').setVolume(10);
 		} 
@@ -313,13 +238,11 @@ const clicker = function(event){
 	document.addEventListener( 'keydown', onKeyDown, false );
 	document.addEventListener( 'keyup', onKeyUp, false );
 	if (!audioManager.getListenerAudio()){
-		//This one comes from html audio tag
+	
 		audioManager.setListener(cameraM);		
-		let audioElement = createAudioElement('violetMusic');
-		const audio = createPositionalAudio(audioElement,  {Volume: 4, RolloffFactor : 900, RefDistance : 35});
-		violetSphere.add(audio);
-
-		// this comes from audio manager file provided
+		//This one comes from html audio tag
+		audioManager.createPositionalAudio('violetMusic',  {Volume: 4, RolloffFactor : 900, RefDistance : 35}, violetSphere);
+		// this comes from audio manager event audio defined entirely in JS
 		audioManager.createEventAudio({name:'red', volumen:30, distance: 0.5}, null, redSphere);
 		audioManager.createEventAudio({name:'green', volumen:0.5, distance: 1}, null, greenSphere);	
 

@@ -381,3 +381,78 @@ function AudioStayPlay(sound) {
     }
     return false;
 }
+
+
+//Codigo nuevo
+
+//Receive Id of html audio element, this is usefull when only have the html tag
+function createAudioElement(id){
+    const audioElement = document.getElementById(id);
+    audioElement.play();
+    return audioElement;
+}
+
+
+
+//receive the Id from an audio html tag return element to set
+//this also receive a configuration JSON that set the properties of the audio element
+//See threejs documentation in order to see what configuration you could give
+//the function are case sensitive, so you must write the config exactly
+//the same way threeJS name function (minus the '.set')
+//This function also receive a previously defined object to add the sound to
+export function createPositionalAudio(audioElementId, conf, object){
+    const sound = new THREE.PositionalAudio(getListenerAudio());
+    const audioElement = createAudioElement(audioElementId);
+    sound.setMediaElementSource( audioElement );
+    let confEntries = (conf) ? Object.entries(conf) : [];
+    for (let i = 0; i< confEntries.length ; i++ ){
+        confEntries[i][0] = "set" + confEntries[i][0];
+        if (typeof sound[confEntries[i][0]] === "function"){
+            sound[confEntries[i][0]](confEntries[i][1]);
+        }
+    }
+    sound.name ='Audio';
+    object.add(sound)
+}
+
+//This function receive an object and return if the audio
+//from said object is playing or not (usefull to avoid console warnings)
+export function audioPlaying(object){
+    let c = helper.findByName(object, 'Audio')
+    return c.isPlaying;
+}
+
+//Function to create the positional audio through a media stream
+//this receive a stream and a configuration JSON that set properties of the audio element
+//See threejs documentation in order to see what configuration you could give
+//the function are case sensitive, so you must write the config exactly
+//the same way threeJS name function (minus the '.set')
+let createAudioStream = function(stream, conf){
+    let sound = new THREE.PositionalAudio(getListenerAudio());
+    sound.setMediaStreamSource(stream);
+    let confEntries = (conf) ? Object.entries(conf) : [];
+    for (let i = 0; i< confEntries.length ; i++ ){
+        confEntries[i][0] = "set" + confEntries[i][0];
+        if (typeof sound[confEntries[i][0]] === "function"){
+            sound[confEntries[i][0]](confEntries[i][1]);
+        }
+    }
+    return sound;
+}
+
+//Receive an object and put the media stream element on it
+//also receive a config json to change the audioStream default configuration
+//createAudioStream function
+export let catchMicrophone = function(object, conf){
+    let mediaRecorder;
+    let constraints = {audio : true};
+    navigator.mediaDevices.getUserMedia(constraints).then(function(stream){
+        mediaRecorder = new MediaRecorder(stream);
+        mediaRecorder.onstart = function(e){
+            const audio = createAudioStream(e.target.stream, conf);
+            audio.name = 'audio';
+            object.add(audio);
+        }
+        mediaRecorder.start();
+    })
+}
