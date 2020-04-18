@@ -196,13 +196,16 @@ let onKeyDown = function ( event ) {
 			audioManager.startAudio(redSphere);
 			break;
 		case 86: //V
-			audioManager.upDownAudio(5, activeCamera);
+			audioManager.upDownAudio(1, activeCamera);
 			break;
 		case 66: //B
-			audioManager.upDownAudio(-5, activeCamera);
+			audioManager.upDownAudio(-1, activeCamera);
 			break;
 		case 78: //N
 			audioManager.deleteAudio(greenSphere);
+			break;
+		case 77: //M
+			audioManager.stopAllAudio(greenSphere);
 			break;
 		case 67:
 		if(blueSphere.getObjectByName('audio') == null) {
@@ -250,10 +253,13 @@ const clicker = function(event){
 	
 		audioManager.setListener(cameraM);		
 		//This one comes from html audio tag
-		audioManager.createPositionalAudio('violetMusic',  {Volume: 4, RolloffFactor : 900, RefDistance : 35}, violetSphere);
+		audioManager.createPositionalAudio('violetMusic',  {Volume: 4, RolloffFactor : 2000, RefDistance : 35}, violetSphere);
+		audioManager.startAudio(violetSphere);
 		// this comes from audio manager event audio defined entirely in JS
 		audioManager.createAudioEvent({name:'red', volumen:30, distance: 0.5}, null, redSphere);
-		audioManager.createAudioEvent({name:'green', volumen:0.5, distance: 1}, null, greenSphere);	
+
+		//This comes from loadAudio function modified by me
+		audioManager.loadAudio('green', greenSphere, {Volume:6, RefDistance: 20, RolloffFactor: 800});
 
 		// This is mediaStream Manager
 	}

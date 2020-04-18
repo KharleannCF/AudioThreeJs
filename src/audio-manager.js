@@ -162,6 +162,8 @@ export function addAudioEvent(conf, position, _object) {
 
 //Name changed for consistency with prevously defined methods
 //createEventAudio now is createAudioEvent
+//Commented audioPlay.push Audio is not playing after initialization
+//See startAudio() for more information in regard of this change
 export function createAudioEvent(conf, position, _object) {
     let sound = new THREE.PositionalAudio(listener);
     let object = helper.isDefined(_object) ? _object : AudioObject(position, true);
@@ -177,8 +179,39 @@ export function createAudioEvent(conf, position, _object) {
         sound.setRefDistance(conf.distance);
         object.add(sound);
         sound.plays = false;
-        audioPlay.push(sound);
+        //audioPlay.push(sound);
     });
+}
+
+//loadAudio() and createAudioEvent do almost the same thing
+//Considering this I will use one to adapt the configuration part to one more
+//adaptable to diferent kind of configurations
+//this also receive a configuration JSON that set the properties of the audio element
+//See threejs documentation in order to see what configuration you could give
+//the function are case sensitive, so you must write the config exactly
+//the same way threeJS name function (minus the '.set')
+//This function also receive a previously defined object to add the sound to
+export function loadAudio(name, object, conf) {
+    let sound = new THREE.PositionalAudio(listener);
+    conf = helper.isDefined(conf) ? conf : {};
+    let confEntries = (conf) ? Object.entries(conf) : [];
+
+    loaderaudio.load(normalAudio[name], function (buffer) {
+
+        sound.setBuffer(buffer);
+        sound.name = "Audio";
+        for (let i = 0; i< confEntries.length ; i++ ){
+        confEntries[i][0] = "set" + confEntries[i][0];
+            if (typeof sound[confEntries[i][0]] === "function"){
+                sound[confEntries[i][0]](confEntries[i][1]);
+            }
+        }
+        sound.plays = false;
+        object.add(sound);
+        //audioPlay.push(sound);
+
+    });
+
 }
 
 function addAudioPoint(conf, position) {
@@ -204,19 +237,29 @@ function addAudioPoint(conf, position) {
     });
 }
 
+
+//Added both audioPlay.push() stopAllAudio wont work properly
+//Audios that stoped and started again wont stop
+//also added HTML tag audio support to start on command
+//had to modify different sections of the function
 export function startAudio(object) {
     let v = false;
     let c = object.children.filter(object => object.name == "Audio");
     if (c.length > 1) {
-
         if (!AudioStayPlay(c)) {
-
             for (let i = 0; i < c.length; i++) {
-                if (c[i].plays) continue;
-                c[i].plays = true;
-                c[i].play();
-                v = true;
-                break;
+                if(c[i].hasPlaybackControl){ 
+                    if (c[i].plays) continue;
+                    audioPlay.push(c[i]);
+                    c[i].plays = true;
+                    c[i].play();
+                    v = true;
+                    break; 
+                } else {
+                    c[i].source.mediaElement.play();
+                    c[i].plays = true;
+                    audioPlay.push(c[i]);
+                }
             }
             if (!v) {
                 for (let i = 0; i < c.length; i++) {
@@ -225,10 +268,15 @@ export function startAudio(object) {
                 startAudio(object);
             }
         }
-
     } else {
-
-        c[0].play();
+        if (c[0].hasPlaybackControl){
+            audioPlay.push(c[0]);
+            c[0].play();    
+        }else{
+            c[0].source.mediaElement.play();
+            audioPlay.push(c[0]);
+        }
+        
     }
 }
 
@@ -236,21 +284,30 @@ export function startAudio(object) {
 //removed '[0]' from v.remove(c[0]) previous error may come from my helper definition
 //If audio element is only removed it will still keep playing till song ends
 //unles you pause it before removing it
+//this will only work with audios created through Js created audios
 export function deleteAudio(v) {
     let c = helper.findByName(v, "Audio");
     c.pause();
     v.remove(c);
 }
 
+//added HTML tag audio support to start on command
+//had to modify different sections of the function
 export function stopAllAudio() {
 
     let v;
     for (let i = 0; i < audioPlay.length; i++) {
-
-        if (audioPlay[i].isPlaying && audioPlay[i].name != "ambient") {
-            audioPlay[i].stop();
-        } else {
-            v = audioPlay[i];
+        if(audioPlay[i].hasPlaybackControl){
+            if (audioPlay[i].isPlaying && audioPlay[i].name != "ambient") {
+                audioPlay[i].stop();
+            } else {
+                v = audioPlay[i];
+            }
+        }else {
+            if(!audioPlay[i].source.mediaElement.paused){
+                audioPlay[i].source.mediaElement.pause();
+                audioPlay[i].source.mediaElement.currentTime = 0;
+            }
         }
 
     }
@@ -363,36 +420,24 @@ export function startAudioMultiple(object, j) {
     }
 }
 
-export function loadAudio(name, object, conf) {
 
-    let sound = new THREE.PositionalAudio(listener);
-    conf = helper.isDefined(conf) ? conf : {};
-    conf.volumen = helper.isDefined(conf.volumen) ? conf.volumen : 1;
-    conf.distance = helper.isDefined(conf.distance) ? conf.distance : 20;
-
-    loaderaudio.load(normalAudio[name], function (buffer) {
-
-        sound.setBuffer(buffer);
-        sound.Volume = conf.volumen;
-        setVolume(sound);
-        sound.name = "Audio";
-        sound.setRefDistance(conf.distance);
-        sound.plays = false;
-        object.add(sound);
-        audioPlay.push(sound);
-
-    });
-
-}
-
+//Added support for html elements
+//had to modify diferent sections of the functions
 function AudioStayPlay(sound) {
     for (let i = 0; i < sound.length; i++) {
-        if (sound[i].isPlaying) {
-            return true;
-        }
+        if(sound[i].hasPlaybackControl){
+            if (sound[i].isPlaying) {
+                return true;
+            }
+        } else{
+            if (!sound[i].source.mediaElement.paused){
+                return true;
+            }
+        }        
     }
     return false;
 }
+
 
 
 //Added Functions
@@ -400,7 +445,6 @@ function AudioStayPlay(sound) {
 //Receive Id of html audio element, this is usefull when only have the html tag
 function createAudioElement(id){
     const audioElement = document.getElementById(id);
-    audioElement.play();
     return audioElement;
 }
 
